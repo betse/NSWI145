@@ -1,0 +1,43 @@
+# Maven Build Artifacts
+target/
+*.jar
+*.war
+*.ear
+
+# Maven Dependency Cache
+.mvn/
+mvnw
+mvnw.cmd
+
+# Logs
+*.log
+logs/
+
+# IDE Files
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# Compiled Class Files
+*.class
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS-Specific Files
+.DS_Store
+Thumbs.db
+
+# Environment-Specific Files
+*.env
