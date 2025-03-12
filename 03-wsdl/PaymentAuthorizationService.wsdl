@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions 
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://food_delivery_app.nswi145.betse.mff/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    targetNamespace="http://food_delivery_app.nswi145.betse.mff/">
+
+    <!-- Types definition -->
+    <types>
+        <xsd:schema targetNamespace="http://food_delivery_app.nswi145.betse.mff/">
+            <!-- PaymentRequest complex type -->
+            <xsd:complexType name="PaymentRequest">
+                <xsd:sequence>
+                    <xsd:element name="orderId" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="cardNumber" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="cardExpiration" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="cardCvc" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="amount" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Request and Response elements -->
+            <xsd:element name="requestPaymentAuthorization">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="paymentRequest" type="tns:PaymentRequest"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="requestPaymentAuthorizationResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="return" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages -->
+    <message name="requestPaymentAuthorizationRequest">
+        <part name="parameters" element="tns:requestPaymentAuthorization"/>
+    </message>
+    
+    <message name="requestPaymentAuthorizationResponse">
+        <part name="parameters" element="tns:requestPaymentAuthorizationResponse"/>
+    </message>
+
+    <!-- Port Type -->
+    <portType name="IPaymentAuthorizationService">
+        <operation name="requestPaymentAuthorization">
+            <input message="tns:requestPaymentAuthorizationRequest"/>
+            <output message="tns:requestPaymentAuthorizationResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="PaymentAuthorizationServiceBinding" type="tns:IPaymentAuthorizationService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="requestPaymentAuthorization">
+            <soap:operation soapAction="requestPaymentAuthorization"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="PaymentAuthorizationService">
+        <port name="PaymentAuthorizationServicePort" binding="tns:PaymentAuthorizationServiceBinding">
+            <soap:address location="http://localhost:8080/paymentAuthorization"/>
+        </port>
+    </service>
+
+</definitions>

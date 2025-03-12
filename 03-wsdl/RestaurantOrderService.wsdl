@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions 
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:tns="http://food_delivery_app.nswi145.betse.mff/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    targetNamespace="http://food_delivery_app.nswi145.betse.mff/">
+
+    <!-- Types definition -->
+    <types>
+        <xsd:schema targetNamespace="http://food_delivery_app.nswi145.betse.mff/">
+            <!-- FoodItem complex type -->
+            <xsd:complexType name="FoodItem">
+                <xsd:sequence>
+                    <xsd:element name="name" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="quantity" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- OrderRequest complex type -->
+            <xsd:complexType name="OrderRequest">
+                <xsd:sequence>
+                    <xsd:element name="orderId" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="customerName" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="foodItems" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="foodItem" type="tns:FoodItem" minOccurs="0" maxOccurs="unbounded"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Request element -->
+            <xsd:element name="sendOrderRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="orderRequest" type="tns:OrderRequest"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <!-- Response element -->
+            <xsd:element name="sendOrderRequestResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="return" type="xsd:string"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages -->
+    <message name="sendOrderRequestRequest">
+        <part name="parameters" element="tns:sendOrderRequest"/>
+    </message>
+    
+    <message name="sendOrderRequestResponse">
+        <part name="parameters" element="tns:sendOrderRequestResponse"/>
+    </message>
+
+    <!-- Port Type -->
+    <portType name="IRestaurantOrderService">
+        <operation name="sendOrderRequest">
+            <input message="tns:sendOrderRequestRequest"/>
+            <output message="tns:sendOrderRequestResponse"/>
+        </operation>
+    </portType>
+
+    <!-- Binding -->
+    <binding name="RestaurantOrderServiceBinding" type="tns:IRestaurantOrderService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="sendOrderRequest">
+            <soap:operation soapAction="sendOrderRequest"/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+    <!-- Service -->
+    <service name="RestaurantOrderService">
+        <port name="RestaurantOrderServicePort" binding="tns:RestaurantOrderServiceBinding">
+            <soap:address location="http://localhost:8080/restaurantOrder"/>
+        </port>
+    </service>
+
+</definitions>
