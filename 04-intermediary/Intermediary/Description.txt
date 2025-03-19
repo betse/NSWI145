@@ -1,0 +1,77 @@
+SOAP Intermediary
+-----------------
+
+Overview:
+This servlet acts as a SOAP intermediary between SOAP clients (such as SoapUI) and the actual Restaurant Order Service. Its purpose is to intercept incoming SOAP requests, process a discount header, forward the request to the target service, then modify the response by adding discount information in both the header and body before sending it back to the client.
+
+Detailed Workflow:
+------------------
+
+1. Receiving the SOAP Request:
+   - The servlet is mapped to the URL "/RestaurantOrderIntermediary".
+   - When a POST request is received, it reads the incoming SOAP message using the SAAJ MessageFactory.
+   - The SOAP message is built from the HttpServletRequest’s input stream.
+
+2. Processing the Request Header:
+   - The SOAP header is examined for a discount header element with the QName {http://discounts.com/}discount.
+   - If such a header exists, its "percentage" attribute is extracted.
+   - If no discount header is present, the discount percentage defaults to "0".
+
+3. Forwarding the Request:
+   - The servlet forwards the complete SOAP message to the actual Restaurant Order Service endpoint (http://localhost:8080/restaurantOrder) using a SOAPConnection.
+   - The original SOAP request is not modified in its body at this stage; it is simply forwarded.
+
+4. Processing the Response – Header Modification:
+   - After receiving the SOAP response from the target service, the servlet accesses the SOAP envelope and its header.
+   - A new header element named "discounted" in the namespace "http://discounts.com/" is added.
+   - This header element contains a text node indicating the discount applied (e.g., "Discount applied: 10%").
+
+5. Processing the Response – Body Modification:
+   - The SOAP body of the response is then examined.
+   - The servlet locates the "sendOrderRequestResponse" element within the namespace defined for the food delivery service.
+   - Within this element, it finds the "return" element that holds the original response text.
+   - The servlet then appends a discount note to the return string, indicating that a discount of the specified percentage has been applied.
+
+6. Sending the Modified Response Back:
+   - The updated SOAP response is saved.
+   - The servlet sets the response content type to "text/xml" and writes the modified SOAP message to the HttpServletResponse’s output stream.
+   - Finally, the SOAP connection is closed.
+
+------------------------------------------------------------------------------
+
+intermediary URL: http://localhost:8081/Intermediary/RestaurantOrderIntermediary
+
+
+SoapUI Request:
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+                  xmlns:food="http://food_delivery_app.nswi145.betse.mff/" 
+                  xmlns:dis="http://discounts.com/">
+   <soapenv:Header>
+      <dis:discount percentage="18"/>
+   </soapenv:Header>
+   <soapenv:Body>
+      <food:sendOrderRequest>
+         <orderRequest>
+            <customerName>betse</customerName>
+            <!--Zero or more repetitions:-->
+            <foodItem>    
+               <name>Pasta</name>
+               <quantity>8</quantity>
+            </foodItem>
+            <orderId>ORDER123</orderId>
+         </orderRequest>
+      </food:sendOrderRequest>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+SoapUI Response:
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+   <S:Header>
+      <discounted xmlns="http://discounts.com/">Discount applied: 18%</discounted>
+   </S:Header>
+   <S:Body>
+      <ns2:sendOrderRequestResponse xmlns:ns2="http://food_delivery_app.nswi145.betse.mff/">
+         <return>Order Accepted by Restaurant - Confirmation ID: REST_1742426175857 (Discount of 18% applied)</return>
+      </ns2:sendOrderRequestResponse>
+   </S:Body>
+</S:Envelope>
