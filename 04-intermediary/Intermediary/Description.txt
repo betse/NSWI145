@@ -37,7 +37,8 @@ Detailed Workflow:
    - The servlet sets the response content type to "text/xml" and writes the modified SOAP message to the HttpServletResponse’s output stream.
    - Finally, the SOAP connection is closed.
 
-------------------------------------------------------------------------------
+
+
 
 intermediary URL: http://localhost:8081/Intermediary/RestaurantOrderIntermediary
 
