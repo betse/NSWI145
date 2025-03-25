@@ -1,0 +1,50 @@
+<xs:schema xmlns:tns="http://food_delivery_app.nswi145.betse.mff/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://food_delivery_app.nswi145.betse.mff/" version="1.0">
+
+  <xs:element name="checkOrderStatus" type="tns:checkOrderStatus"/>
+
+  <xs:element name="checkOrderStatusResponse" type="tns:checkOrderStatusResponse"/>
+
+  <xs:element name="sendOrderRequest" type="tns:sendOrderRequest"/>
+
+  <xs:element name="sendOrderRequestResponse" type="tns:sendOrderRequestResponse"/>
+
+  <xs:complexType name="sendOrderRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:orderRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="orderRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="customerName" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="foodItems" nillable="true" type="tns:foodItem"/>
+      <xs:element minOccurs="0" name="orderId" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="foodItem">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+      <xs:element name="quantity" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="sendOrderRequestResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="checkOrderStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="checkOrderStatusResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="RestaurantOrderServiceImplService" targetNamespace="http://food_delivery_app.nswi145.betse.mff/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://food_delivery_app.nswi145.betse.mff/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://food_delivery_app.nswi145.betse.mff/" schemaLocation="restaurantorderserviceimpl_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="checkOrderStatusResponse">
+    <wsdl:part name="parameters" element="tns:checkOrderStatusResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendOrderRequestResponse">
+    <wsdl:part name="parameters" element="tns:sendOrderRequestResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendOrderRequest">
+    <wsdl:part name="parameters" element="tns:sendOrderRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="checkOrderStatus">
+    <wsdl:part name="parameters" element="tns:checkOrderStatus">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="IRestaurantOrderService">
+    <wsdl:operation name="sendOrderRequest">
+      <wsdl:input name="sendOrderRequest" message="tns:sendOrderRequest">
+    </wsdl:input>
+      <wsdl:output name="sendOrderRequestResponse" message="tns:sendOrderRequestResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkOrderStatus">
+      <wsdl:input name="checkOrderStatus" message="tns:checkOrderStatus">
+    </wsdl:input>
+      <wsdl:output name="checkOrderStatusResponse" message="tns:checkOrderStatusResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="RestaurantOrderServiceImplServiceSoapBinding" type="tns:IRestaurantOrderService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="sendOrderRequest">
+      <soap:operation soapAction="urn:SendOrderRequest" style="document"/>
+      <wsdl:input name="sendOrderRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendOrderRequestResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="checkOrderStatus">
+      <soap:operation soapAction="urn:CheckOrderStatus" style="document"/>
+      <wsdl:input name="checkOrderStatus">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="checkOrderStatusResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="RestaurantOrderServiceImplService">
+    <wsdl:port name="RestaurantOrderServiceImplPort" binding="tns:RestaurantOrderServiceImplServiceSoapBinding">
+      <soap:address location="http://localhost:8081/cxf-server/services/RestaurantOrderServiceImplPort"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
