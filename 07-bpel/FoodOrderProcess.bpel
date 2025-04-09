@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="FoodOrderProcess"
+         targetNamespace="http://example.com/foodorder"
+         xmlns="http://docs.oasis-open.org/wsbpel/2.0/process/executable"
+         xmlns:tns="http://example.com/foodorder"
+         xmlns:rest="http://food_delivery_app.nswi145.betse.mff/"
+         xmlns:pay="http://payment_gateway.nswi145.betse.mff/"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+         
+    <import location="FoodOrderProcess.wsdl" namespace="http://example.com/foodorder"
+            importType="http://schemas.xmlsoap.org/wsdl/"/>
+    <partnerLinks>
+        <partnerLink name="ClientLink" partnerLinkType="tns:OrderLinkType"
+                     myRole="OrderServiceRole"/>
+        <partnerLink name="RestaurantLink" partnerLinkType="tns:RestaurantLinkType"
+                     partnerRole="RestaurantRole"/>
+        <partnerLink name="PaymentLink" partnerLinkType="tns:PaymentLinkType"
+                     partnerRole="PaymentRole"/>
+    </partnerLinks>
+    <variables>
+        <variable name="input" messageType="tns:OrderRequestMsg"/>
+        <variable name="output" messageType="tns:OrderResponseMsg"/>
+        <variable name="orderRequest" element="rest:orderRequest"/>
+        <variable name="submitOrderRequest" messageType="rest:sendOrderRequest"/>
+        <variable name="submitOrderResponse" messageType="rest:sendOrderRequestResponse"/>
+        <variable name="paymentRequest" messageType="pay:sendPaymentResponse"/>
+        <variable name="paymentResponse" messageType="pay:sendPaymentResponseResponse"/>
+        <variable name="statusRequest" messageType="rest:checkOrderStatus"/>
+        <variable name="statusResponse" messageType="rest:checkOrderStatusResponse"/>
+    </variables>
+    <sequence>
+        <receive partnerLink="ClientLink" portType="tns:OrderPortType"
+                 operation="placeOrder" variable="input" createInstance="yes"/>
+        
+        <!-- Handle Payment First -->
+        <sequence name="HandlePayment">
+            <assign name="PreparePayment">
+                <copy>
+                    <from>
+                        <literal>
+                            <pay:sendPaymentResponse>
+                                <pay:transactionId>txn_123</pay:transactionId>
+                                <pay:orderId>ORD12345</pay:orderId>
+                                <pay:status>SUCCESS</pay:status>
+                            </pay:sendPaymentResponse>
+                        </literal>
+                    </from>
+                    <to variable="paymentRequest" part="parameters"/>
+                </copy>
+                <copy>
+                    <from>$input.parameters/orderId</from>
+                    <to>$paymentRequest.parameters/pay:orderId</to>
+                </copy>
+            </assign>
+            <invoke partnerLink="PaymentLink" portType="pay:IPaymentResponseService"
+                    operation="sendPaymentResponse" inputVariable="paymentRequest"
+                    outputVariable="paymentResponse"/>
+        </sequence>
+
+        <!-- Check Payment Status and Proceed -->
+        <if>
+            <condition>$paymentResponse.parameters/return/status = 'SUCCESS'</condition>
+            <sequence name="HandleOrder">
+
+                <!-- Prepare and Send Order Request -->
+                <assign name="PrepareSubmitOrder">
+                    <copy>
+                        <from>
+                            <literal>
+                                <rest:orderRequest>
+                                    <customerName xmlns=""></customerName>
+                                    <foodItem xmlns="">
+                                        <name xmlns=""></name>
+                                        <quantity xmlns="">0</quantity>
+                                    </foodItem>
+                                    <orderId xmlns=""></orderId>
+                                </rest:orderRequest>
+                            </literal>
+                        </from>
+                        <to variable="orderRequest"/>
+                    </copy>
+                    <copy>
+                        <from>$input.parameters/customerName</from>
+                        <to>$orderRequest/customerName</to>
+                    </copy>
+                    <copy>
+                        <from>$input.parameters/foodItems[1]/name</from>
+                        <to>$orderRequest/foodItem[1]/name</to>
+                    </copy>
+                    <copy>
+                        <from>$input.parameters/foodItems[1]/quantity</from>
+                        <to>$orderRequest/foodItem[1]/quantity</to>
+                    </copy>
+                    <copy>
+                        <from>$input.parameters/orderId</from>
+                        <to>$orderRequest/orderId</to>
+                    </copy>
+                    <copy>
+                        <from>
+                            <literal xmlns:rest="http://food_delivery_app.nswi145.betse.mff/">
+                                <rest:sendOrderRequest>
+                                    <rest:orderRequest/>
+                                </rest:sendOrderRequest>
+                            </literal>
+                        </from>
+                        <to variable="submitOrderRequest" part="parameters"/>
+                    </copy>
+                    <copy>
+                        <from variable="orderRequest"/>
+                        <to>$submitOrderRequest.parameters/rest:orderRequest</to>
+                    </copy>
+                </assign>
+                <invoke partnerLink="RestaurantLink" portType="rest:IRestaurantOrderService"
+                        operation="sendOrderRequest" inputVariable="submitOrderRequest"
+                        outputVariable="submitOrderResponse"/>
+                
+                <!-- Then Check Order Status -->
+                <assign name="PrepareStatusCheck">
+                    <copy>
+                        <from>
+                            <literal>
+                                <rest:checkOrderStatus>
+                                    <orderId xmlns="">tesss</orderId>
+                                </rest:checkOrderStatus>
+                            </literal>
+                        </from>
+                        <to variable="statusRequest" part="parameters"/>
+                    </copy>
+                    <copy>
+                        <from>$submitOrderResponse.parameters/return</from>
+                        <to>$statusRequest.parameters/orderId</to>
+                    </copy>
+                </assign>
+                <invoke partnerLink="RestaurantLink" portType="rest:IRestaurantOrderService"
+                        operation="checkOrderStatus" inputVariable="statusRequest"
+                        outputVariable="statusResponse"/>
+
+                <!-- Set Successful Output -->        
+                <assign name="SetOutput">
+                    <copy>
+                        <from>$statusResponse.parameters/return</from>
+                        <to>$output.parameters</to>
+                    </copy>
+                </assign>
+            </sequence>
+            <else>
+
+                <!-- Handle Payment Failure -->
+                <assign name="SetFailureOutput">
+                    <copy>
+                        <from>'Payment Failed'</from>
+                        <to>$output.parameters</to>
+                    </copy>
+                </assign>
+            </else>
+        </if>
+        <reply partnerLink="ClientLink" portType="tns:OrderPortType"
+               operation="placeOrder" variable="output"/>
+    </sequence>
+</process>
