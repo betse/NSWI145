@@ -1,9 +1,14 @@
 package mff.betse.nswi145.food_delivery_app;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.jws.WebService;
 
 @WebService(endpointInterface = "mff.betse.nswi145.food_delivery_app.IRestaurantOrderService")
 public class RestaurantOrderServiceImpl implements IRestaurantOrderService {
+    
+    private Map<String, String> orderStatusMap = new HashMap<>(); // Mock storage
 
     public String sendOrderRequest(OrderRequest orderRequest) {
         // Mock implementation: Simulate receiving an order request
@@ -16,7 +21,13 @@ public class RestaurantOrderServiceImpl implements IRestaurantOrderService {
         }
 
         // Simulate restaurant acceptance (mocked response)
-        String confirmationId = "REST_" + System.currentTimeMillis();
-        return "Order Accepted by Restaurant - Confirmation ID: " + confirmationId;
+        //String confirmationId = "REST_" + System.currentTimeMillis();
+        orderStatusMap.put(orderRequest.getOrderId(), "Accepted");
+        return orderRequest.getOrderId();
+    }
+
+    public String checkOrderStatus(String orderId) {
+        String status = orderStatusMap.getOrDefault(orderId, "Not Found");
+        return "Order Status for " + orderId + ": " + status;
     }
 }

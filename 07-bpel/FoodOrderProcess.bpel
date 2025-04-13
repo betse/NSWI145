@@ -31,38 +31,33 @@
     <sequence>
         <receive partnerLink="ClientLink" portType="tns:OrderPortType"
                  operation="placeOrder" variable="input" createInstance="yes"/>
-        
-        <!-- Handle Payment First -->
-        <sequence name="HandlePayment">
-            <assign name="PreparePayment">
-                <copy>
-                    <from>
-                        <literal>
-                            <pay:sendPaymentResponse>
-                                <pay:transactionId>txn_123</pay:transactionId>
-                                <pay:orderId>ORD12345</pay:orderId>
-                                <pay:status>SUCCESS</pay:status>
-                            </pay:sendPaymentResponse>
-                        </literal>
-                    </from>
-                    <to variable="paymentRequest" part="parameters"/>
-                </copy>
-                <copy>
-                    <from>$input.parameters/orderId</from>
-                    <to>$paymentRequest.parameters/pay:orderId</to>
-                </copy>
-            </assign>
-            <invoke partnerLink="PaymentLink" portType="pay:IPaymentResponseService"
-                    operation="sendPaymentResponse" inputVariable="paymentRequest"
-                    outputVariable="paymentResponse"/>
-        </sequence>
-
-        <!-- Check Payment Status and Proceed -->
-        <if>
-            <condition>$paymentResponse.parameters/return/status = 'SUCCESS'</condition>
-            <sequence name="HandleOrder">
-
-                <!-- Prepare and Send Order Request -->
+                 
+        <!-- Run HandlePayment and part of HandleOrder in parallel -->
+        <flow>
+            <sequence name="HandlePayment">
+                <assign name="PreparePayment">
+                    <copy>
+                        <from>
+                            <literal>
+                                <pay:sendPaymentResponse xmlns:pay="http://payment_gateway.nswi145.betse.mff/">
+                                    <pay:transactionId>txn_123</pay:transactionId>
+                                    <pay:orderId></pay:orderId>
+                                    <pay:status>SUCCESS</pay:status>
+                                </pay:sendPaymentResponse>
+                            </literal>
+                        </from>
+                        <to variable="paymentRequest" part="parameters"/>
+                    </copy>
+                    <copy>
+                        <from>$input.parameters/orderId</from>
+                        <to>$paymentRequest.parameters/pay:orderId</to>
+                    </copy>
+                </assign>
+                <invoke partnerLink="PaymentLink" portType="pay:IPaymentResponseService"
+                        operation="sendPaymentResponse" inputVariable="paymentRequest"
+                        outputVariable="paymentResponse"/>
+            </sequence>
+            <sequence name="PrepareOrder">
                 <assign name="PrepareSubmitOrder">
                     <copy>
                         <from>
@@ -97,8 +92,8 @@
                     </copy>
                     <copy>
                         <from>
-                            <literal xmlns:rest="http://food_delivery_app.nswi145.betse.mff/">
-                                <rest:sendOrderRequest>
+                            <literal>
+                                <rest:sendOrderRequest xmlns:rest="http://food_delivery_app.nswi145.betse.mff/">
                                     <rest:orderRequest/>
                                 </rest:sendOrderRequest>
                             </literal>
@@ -110,17 +105,24 @@
                         <to>$submitOrderRequest.parameters/rest:orderRequest</to>
                     </copy>
                 </assign>
+            </sequence>
+        </flow>
+
+        <!-- Check Payment Status and Proceed -->
+        <if>
+            <condition>$paymentResponse.parameters/return/status = 'SUCCESS'</condition>
+            <sequence name="HandleOrder">
                 <invoke partnerLink="RestaurantLink" portType="rest:IRestaurantOrderService"
                         operation="sendOrderRequest" inputVariable="submitOrderRequest"
                         outputVariable="submitOrderResponse"/>
                 
-                <!-- Then Check Order Status -->
+                <!-- Check Order Status -->
                 <assign name="PrepareStatusCheck">
                     <copy>
                         <from>
                             <literal>
-                                <rest:checkOrderStatus>
-                                    <orderId xmlns="">tesss</orderId>
+                                <rest:checkOrderStatus xmlns:rest="http://food_delivery_app.nswi145.betse.mff/">
+                                    <orderId xmlns=""></orderId>
                                 </rest:checkOrderStatus>
                             </literal>
                         </from>
@@ -144,7 +146,6 @@
                 </assign>
             </sequence>
             <else>
-
                 <!-- Handle Payment Failure -->
                 <assign name="SetFailureOutput">
                     <copy>

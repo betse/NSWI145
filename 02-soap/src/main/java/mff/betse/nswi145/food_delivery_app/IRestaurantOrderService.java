@@ -11,5 +11,8 @@ public interface IRestaurantOrderService {
     String sendOrderRequest(
             @WebParam(name = "orderRequest") OrderRequest orderRequest
     );
+    @WebMethod
+    String checkOrderStatus(
+            @WebParam(name = "orderId") String orderId);
 
 }
