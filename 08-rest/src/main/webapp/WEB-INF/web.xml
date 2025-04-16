@@ -1,0 +1,26 @@
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         version="5.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
+
+  <!-- Jersey Servlet mapped to /api/* -->
+  <servlet>
+    <servlet-name>jersey</servlet-name>
+    <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+    <init-param>
+      <param-name>jakarta.ws.rs.Application</param-name>
+      <param-value>mff.betse.nswi145.RestConfig</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jersey</servlet-name>
+    <url-pattern>/api/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- default servlet to serve WebJars under /swagger-ui/ -->
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/swagger-ui/*</url-pattern>
+  </servlet-mapping>
+</web-app>
