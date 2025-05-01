@@ -1,0 +1,41 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+
+# Classes
+schema:Order a rdfs:Class .
+schema:MenuItem a rdfs:Class .
+foaf:Person a rdfs:Class .
+ex:RestaurantOrderService a rdfs:Class .
+
+# Properties for schema:Order
+schema:orderNumber a rdf:Property ;
+    rdfs:domain schema:Order ;
+    rdfs:range xsd:string .
+schema:customer a rdf:Property ;
+    rdfs:domain schema:Order ;
+    rdfs:range foaf:Person .
+schema:orderedItem a rdf:Property ;
+    rdfs:domain schema:Order ;
+    rdfs:range schema:MenuItem .
+
+# Properties for schema:MenuItem
+schema:name a rdf:Property ;
+    rdfs:domain schema:MenuItem ;
+    rdfs:range xsd:string .
+schema:orderQuantity a rdf:Property ;
+    rdfs:domain schema:MenuItem ;
+    rdfs:range xsd:integer .
+
+# Properties for foaf:Person
+foaf:name a rdf:Property ;
+    rdfs:domain foaf:Person ;
+    rdfs:range xsd:string .
+
+# Properties for ex:RestaurantOrderService
+ex:processes a rdf:Property ;
+    rdfs:domain ex:RestaurantOrderService ;
+    rdfs:range schema:Order .

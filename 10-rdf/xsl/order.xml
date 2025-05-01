@@ -1,0 +1,20 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://food_delivery_app.nswi145.betse.mff/">
+  <soap:Body>
+    <tns:sendOrderRequest>
+      <orderRequest>
+        <orderId>12345</orderId>
+        <customerName>John Doe</customerName>
+        <foodItems>
+          <foodItem>
+            <name>Margherita Pizza</name>
+            <quantity>2</quantity>
+          </foodItem>
+          <foodItem>
+            <name>Caesar Salad</name>
+            <quantity>3</quantity>
+          </foodItem>
+        </foodItems>
+      </orderRequest>
+    </tns:sendOrderRequest>
+  </soap:Body>
+</soap:Envelope>

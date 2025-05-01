@@ -1,0 +1,25 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+
+<https://example.org/restaurant/orders/12345> a schema:Order ;
+    schema:orderNumber "12345" ;
+    schema:customer <https://example.org/restaurant/customers/John%20Doe> ;
+    schema:orderedItem <https://example.org/restaurant/menuItems/12345/1> ;
+    schema:orderedItem <https://example.org/restaurant/menuItems/12345/2> .
+
+<https://example.org/restaurant/customers/John%20Doe> a foaf:Person ;
+    foaf:name "John Doe" .
+
+<https://example.org/restaurant/menuItems/12345/1> a schema:MenuItem ;
+    schema:name "Margherita Pizza" ;
+    schema:orderQuantity "2"^^xsd:integer .
+
+<https://example.org/restaurant/menuItems/12345/2> a schema:MenuItem ;
+    schema:name "Caesar Salad" ;
+    schema:orderQuantity "3"^^xsd:integer .
+
+<https://example.org/restaurant/services/main> a ex:RestaurantOrderService ;
+    ex:processes <https://example.org/restaurant/orders/12345> .
